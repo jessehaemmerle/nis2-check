@@ -1,0 +1,33 @@
+{
+  "name": "nis2-check",
+  "version": "1.0.0",
+  "description": "NIS-2 Gap-Analyse und Richtlinien-Generator für KMU in Österreich",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jessehaemmerle/nis2-check.git"
+  },
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/jessehaemmerle/nis2-check/issues"
+  },
+  "homepage": "https://github.com/jessehaemmerle/nis2-check#readme",
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/bricolage-grotesque": "^5.3.0",
+    "docx": "^9.13.0"
+  },
+  "private": true,
+  "type": "module"
+}
