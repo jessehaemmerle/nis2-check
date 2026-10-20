@@ -34,22 +34,68 @@ const answeredCount = () => QUESTIONS.filter((q) => state.answers[q.id] !== unde
 
 // ---------- Screens ----------
 
+const QUICK_SECTORS: [string, string][] = [
+  ['brauerei', 'Brauerei'],
+  ['gastro', 'Gastronomie'],
+  ['handwerk', 'Handwerk'],
+  ['hotel', 'Hotellerie'],
+  ['lebensmittel', 'Bäckerei & Fleischerei'],
+  ['produktion', 'Produktion'],
+];
+
 function startView() {
   return `
   <section class="hero">
-    <h1>Wie gut ist Ihr Betrieb gegen Cyberangriffe gerüstet?</h1>
-    <p class="lead">Beantworten Sie ${QUESTIONS.length} kurze Fragen zu den Maßnahmen nach NIS-2 und NISG 2026. Sie erhalten einen Reifegrad, eine Liste mit den wichtigsten nächsten Schritten und fertige Richtlinien für Ihren Betrieb.</p>
-    <ol class="steps">
-      <li><strong>Betrieb beschreiben</strong><span>Branche und Größe – 1 Minute</span></li>
-      <li><strong>Fragen beantworten</strong><span>11 Themen – etwa 15 Minuten</span></li>
-      <li><strong>Ergebnis nutzen</strong><span>To-do-Liste und Richtlinien als Word, PDF oder Markdown</span></li>
-    </ol>
-    <div class="actions">
-      ${hasSaved ? `<button class="btn primary" data-action="resume">Weitermachen (${answeredCount()} von ${QUESTIONS.length} beantwortet)</button>
-                    <button class="btn" data-action="fresh">Neu beginnen</button>`
-                 : `<button class="btn primary" data-action="go" data-step="profil">Analyse starten</button>`}
+    <div class="hero-copy">
+      <p class="pill">Neu: NISG 2026 gilt seit 1. Oktober</p>
+      <h1>Wie sicher ist Ihr Betrieb?</h1>
+      <p class="lead">In 15 Minuten zum Überblick: ${QUESTIONS.length} einfache Fragen, ein klarer Reifegrad, die wichtigsten nächsten Schritte – und fertige Richtlinien zum Unterschreiben.</p>
+      <div class="actions">
+        ${hasSaved ? `<button class="btn primary big" data-action="resume">Weitermachen</button>
+                      <button class="btn big" data-action="fresh">Neu beginnen</button>`
+                   : `<button class="btn primary big" data-action="go" data-step="profil">Kostenlos starten</button>`}
+      </div>
+      ${hasSaved ? `<p class="fine">${answeredCount()} von ${QUESTIONS.length} Fragen bereits beantwortet.</p>` : ''}
+      <ul class="trust">
+        <li>Ohne Anmeldung</li>
+        <li>Daten bleiben auf Ihrem Gerät</li>
+        <li>Word, PDF und Markdown</li>
+      </ul>
     </div>
-    <p class="fine">Für Brauereien, Gastronomie, Handwerk und weitere Branchen. Ohne Anmeldung, Ihre Daten verlassen das Gerät nicht.</p>
+    <div class="preview" aria-hidden="true">
+      <div class="preview-card">
+        <div class="preview-top">
+          ${badge(64, false)}
+          <div><strong>Gut unterwegs</strong><span>Brauerei · 45 Mitarbeitende</span></div>
+        </div>
+        <ul>
+          <li class="p-low">Offline-Sicherung außer Haus einrichten</li>
+          <li class="p-mid">MFA für E-Mail und Fernwartung</li>
+          <li class="p-done">Updates automatisch einspielen</li>
+        </ul>
+      </div>
+      <div class="preview-doc">
+        <span></span><span></span><span></span><span class="short"></span>
+        <em>Backup-Richtlinie.docx</em>
+      </div>
+    </div>
+  </section>
+
+  <section class="sectors">
+    <h2>Ihre Branche wählen und gleich loslegen</h2>
+    <div class="chips">
+      ${QUICK_SECTORS.map(([id, name]) => `<button class="chip" data-action="sector" data-sector="${id}">${name}</button>`).join('')}
+      <button class="chip ghost" data-action="go" data-step="profil">Andere Branche</button>
+    </div>
+  </section>
+
+  <section class="how">
+    <h2>So funktioniert es</h2>
+    <ol class="steps">
+      <li><strong>Betrieb beschreiben</strong><span>Branche und Größe. Sie sehen sofort, ob das NISG 2026 für Sie gilt.</span></li>
+      <li><strong>Fragen beantworten</strong><span>11 Themen von Backup bis Passwörter, jeweils mit kurzer Erklärung.</span></li>
+      <li><strong>Ergebnis nutzen</strong><span>To-do-Liste nach Dringlichkeit und vier Richtlinien für Ihren Betrieb.</span></li>
+    </ol>
   </section>`;
 }
 
@@ -153,12 +199,12 @@ function questionCard(id: string, text: string, help: string) {
   </fieldset>`;
 }
 
-function badge(score: number) {
+function badge(score: number, animate = true) {
   const level = maturityLevel(score);
   const r = 88;
   const c = 2 * Math.PI * r;
   return `
-  <figure class="plakette l${level.n}" aria-label="Reifegrad ${level.n} von 5, ${score} Prozent">
+  <figure class="plakette l${level.n}${animate ? '' : ' still'}" aria-label="Reifegrad ${level.n} von 5, ${score} Prozent">
     <svg viewBox="0 0 220 220" aria-hidden="true">
       <circle cx="110" cy="110" r="104" class="rim" />
       <circle cx="110" cy="110" r="${r}" class="track" />
@@ -329,6 +375,9 @@ document.addEventListener('click', async (e) => {
       e.preventDefault();
       hasSaved = Object.keys(state.answers).length > 0;
       return set({ step: 'start' });
+    case 'sector':
+      state.profile = { ...state.profile, sector: el.dataset.sector! };
+      return set({ step: 'profil' });
     case 'go':
       return set({ step: step as State['step'] });
     case 'resume':
